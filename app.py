@@ -2,34 +2,57 @@ import streamlit as st
 import google.generativeai as genai
 import json
 
-# Application Title and Description
-st.title("PSX Stock Price and Volume Analysis")
-st.write("This application provides a streamlined analysis of PSX stocks, including support/resistance levels and price movement forecasts.")
+# Set the page to wide mode for a better view
+st.set_page_config(layout="wide")
 
-# Load Gemini API key securely from .streamlit/secrets.toml
-try:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    # Use gemini-1.5-pro or another suitable model if gemini-pro is not available
-    model = genai.GenerativeModel('gemini-1.5-pro') 
-except Exception as e:
-    st.error(f"Failed to configure Gemini API: {e}. Please ensure your API key is correctly saved in `.streamlit/secrets.toml`.")
-    st.stop()
+# Read the local CSS file and inject it
+with open(".streamlit/style.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Input for company_symbol
-company_symbol = st.text_input("Enter PSX Ticker Symbol (e.g., LUCK, TRG):", value="")
+# Use a container to make the app content more visible against the background
+with st.container():
+    st.markdown(
+        """
+        <style>
+        .stContainer {
+            background-color: rgba(14, 17, 23, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.title("PSX Stock Price and Volume Analysis")
+    st.write("This application provides a streamlined analysis of PSX stocks, including support/resistance levels and price movement forecasts.")
 
-# Input for analysis_type
-analysis_options = ['All Analysis', 'Support & Resistance Only', 'Price Forecast Only']
-analysis_type = st.selectbox("Select Analysis Type:", analysis_options)
+    # Load Gemini API key securely from .streamlit/secrets.toml
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel('gemini-1.5-pro')
+    except Exception as e:
+        st.error(f"Failed to configure Gemini API: {e}. Please ensure your API key is correctly saved in `.streamlit/secrets.toml`.")
+        st.stop()
 
-# Submit button
-if st.button("Run Analysis"):
-    if not company_symbol:
-        st.warning("Please enter a company symbol.")
-    else:
-        with st.spinner("Running analysis... Please wait."):
-            # Construct the prompt for the Gemini model based on user input and MCP configuration
-            prompt = f"""
+    # Input for company_symbol and analysis_type
+    col1, col2 = st.columns(2)
+
+    with col1:
+        company_symbol = st.text_input("Enter PSX Ticker Symbol (e.g., LUCK, TRG):", value="")
+
+    with col2:
+        analysis_options = ['All Analysis', 'Support & Resistance Only', 'Price Forecast Only']
+        analysis_type = st.selectbox("Select Analysis Type:", analysis_options)
+
+    # Submit button
+    if st.button("Run Analysis"):
+        if not company_symbol:
+            st.warning("Please enter a company symbol.")
+        else:
+            with st.spinner("Running analysis... Please wait."):
+                # Construct the prompt for the Gemini model
+                prompt = f"""
 You are a financial analyst specializing in the Pakistan Stock Exchange (PSX).
 Please perform a {analysis_type} on the stock with the ticker symbol '{company_symbol}'.
 
@@ -43,7 +66,6 @@ Your analysis should strictly adhere to the following configuration:
         "company_symbol": company_symbol,
         "analysis_type": analysis_type
       },
-
       "default_analysis_parameters": {
         "data_fetch": {
           "historical_periods_available": ["1_month", "6_months", "1_year"],
@@ -94,7 +116,6 @@ Your analysis should strictly adhere to the following configuration:
           "atr_period": 14
         }
       },
-
       "expected_output_structure_based_on_type": {
         "All Analysis": {
           "sections": [
@@ -121,7 +142,6 @@ Your analysis should strictly adhere to the following configuration:
           ]
         }
       },
-
       "output_preferences": {
         "report_format": "Structured Text",
         "include_disclaimer": True
@@ -131,10 +151,11 @@ Your analysis should strictly adhere to the following configuration:
 
 Provide a detailed report in a structured text format based on the above configuration.
 """
-            try:
-                response = model.generate_content(prompt)
-                # Display the response from Gemini
-                st.subheader(f"Analysis for {company_symbol}")
-                st.write(response.text)
-            except Exception as e:
-                st.error(f"An error occurred while generating the analysis: {e}")
+                st.divider()
+                try:
+                    response = model.generate_content(prompt)
+                    # Display the response from Gemini
+                    st.subheader(f"Analysis for {company_symbol}")
+                    st.write(response.text)
+                except Exception as e:
+                    st.error(f"An error occurred while generating the analysis: {e}")
