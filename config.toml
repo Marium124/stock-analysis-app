@@ -1,0 +1,6 @@
+[theme]
+primaryColor="#FF4B4B" # A vibrant red for primary buttons and highlights
+backgroundColor="#0E1117" # A dark, professional background color
+secondaryBackgroundColor="#262730" # A slightly lighter dark for secondary elements
+textColor="#FAFAFA" # White text
+font="sans serif"
