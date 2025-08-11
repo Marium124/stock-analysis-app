@@ -1,0 +1,18 @@
+body {
+  background-image: url("https://images.unsplash.com/photo-1639917714192-557a6143f788?q=80&w=1388&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #0E1117; /* Fallback for when the image fails to load */
+}
+
+/* Make text and input fields more visible against the background */
+.stApp {
+    color: white; 
+}
+
+.stTextInput > div > div > input,
+.stSelectbox > div > div > div > div {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background for inputs */
+    color: white;
+}
