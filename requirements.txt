@@ -1,2 +1,5 @@
 streamlit
 google-generativeai
+streamlit-authenticator
+yfinance==0.2.31
+plotly
